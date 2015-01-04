@@ -603,9 +603,9 @@ public class BitBoard implements Cloneable {
 	 */
 	public int countStones(int player){
 		if(player==GREEN){
-			return Bitfields.numberOfSet(GB);
+			return Bitfields.bitCount(GB);
 		}else{
-			return Bitfields.numberOfSet(RB);
+			return Bitfields.bitCount(RB);
 		}
 	}
 	/**
@@ -616,9 +616,9 @@ public class BitBoard implements Cloneable {
 	 */
 	public int diffStones(int player){
 		if(player == RED)
-			return Bitfields.numberOfSet(RB)-Bitfields.numberOfSet(GB);
+			return Bitfields.bitCount(RB)-Bitfields.bitCount(GB);
 		
-		return Bitfields.numberOfSet(GB)-Bitfields.numberOfSet(RB);
+		return Bitfields.bitCount(GB) - Bitfields.bitCount(RB);
 	}
 	/**
 	 * Gets you the Occupation of a Field.
@@ -654,7 +654,7 @@ public class BitBoard implements Cloneable {
 			System.out.print('\n');
 			start -=8; end -=8;
 		}
-		System.out.println("Red stones: " + Bitfields.numberOfSet(RB) + "  Green stones: " + Bitfields.numberOfSet(GB));
+		System.out.println("Red stones: " + Bitfields.bitCount(RB) + "  Green stones: " + Bitfields.bitCount(GB));
 		System.out.println("--------------------------------");
 	}
 	/**
@@ -671,7 +671,7 @@ public class BitBoard implements Cloneable {
 	 * @return true if there are empty fields left, else false
 	 */
 	public final boolean gameOver(){
-		return Bitfields.numberOfSet(~(RB|GB))==0;
+		return Bitfields.bitCount(~(RB | GB)) == 0;
 	}
 	
 	//-----------Board Getter--------------------

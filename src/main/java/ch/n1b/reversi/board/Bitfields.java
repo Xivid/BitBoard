@@ -196,24 +196,20 @@ public class Bitfields {
 											BIT40,BIT41,BIT42,BIT43,BIT44,BIT45,BIT46,BIT47,
 											BIT48,BIT49,BIT50,BIT51,BIT52,BIT53,BIT54,BIT55,
 											BIT56,BIT57,BIT58,BIT59,BIT60,BIT61,BIT62,BIT63 };
+
 	/**
 	 * FIELD[x][y] represents a 8x8 Bitfield where the x  / y bit is set.
 	 */
 	final public static long[][] FIELD =  {{A1, A2, A3, A4, A5, A6, A7, A8},
-										   {B1, B2, B3, B4, B5, B6, B7, B8},
-										   {C1, C2, C3, C4, C5, C6, C7, C8},
-										   {D1, D2, D3, D4, D5, D6, D7, D8},
-										   {E1, E2, E3, E4, E5, E6, E7, E8},
-										   {F1, F2, F3, F4, F5, F6, F7, F8},
-										   {G1, G2, G3, G4, G5, G6, G7, G8},
-										   {H1, H2, H3, H4, H5, H6, H7, H8}};
-	
-	final static long DIAG_A1    = A1 | B2 | C3 | D4 | E5 | F6 | G7 | H8 ;	
-	final static long DIAG_A8    = A8 | B7 | C6 | D5 | E4 | F3 | G2 | H1 ;
-	
-	final static long HORIZONTAL = A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 ;
-	final static long VERTICAL   = A1 | A2 | A3 | A4 | A5 | A6 | A7 | A8 ;
-	
+			{B1, B2, B3, B4, B5, B6, B7, B8},
+			{C1, C2, C3, C4, C5, C6, C7, C8},
+			{D1, D2, D3, D4, D5, D6, D7, D8},
+			{E1, E2, E3, E4, E5, E6, E7, E8},
+			{F1, F2, F3, F4, F5, F6, F7, F8},
+			{G1, G2, G3, G4, G5, G6, G7, G8},
+			{H1, H2, H3, H4, H5, H6, H7, H8}};
+
+
 	/*
 	 * Masks for all borders
 	 *   L      R      U      D
@@ -221,25 +217,11 @@ public class Bitfields {
 	 * X O O  O O X  O O O  O O O
 	 * X O O  O O X  O O O  X X X
 	 */
-	final static long BORDER_L  = A1 | A2 | A3 | A4 | A5 | A6 | A7 | A8 ;
-	final static long BORDER_R  = H1 | H2 | H3 | H4 | H5 | H6 | H7 | H8 ;
-	final static long BORDER_U  = A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 ;
-	final static long BORDER_D  = A8 | B8 | C8 | D8 | E8 | F8 | G8 | H8 ;
-	
-	/*
-	 * important masks in reversi
-	 * 
-	 * X O O O X  O O O O O  O X O X O
-	 * O O O O O  O X O X O  X O O O X
-	 * O O O O O  O O O O O  O O O O O
-	 * O O O O O  O X O X O  X O O O X
-	 * X O O O X  O O O O O  O X O X O
-	 * 
-	 */
-	final public static long CORNERS  = A1 | H1 | H8 | A8 ;
-	final public static long X_FIELDS = B2 | G2 | G7 | B7 ;
-	final public static long C_FIELDS = B1 | A2 | G1 | H2 | A7 | B8 | H7 | G8 ;
-	
+	final static long BORDER_L  = BIT00 | BIT08 | BIT16 | BIT24 | BIT32 | BIT40 | BIT48 | BIT56;
+	final static long BORDER_R  = BIT07 | BIT15 | BIT23 | BIT31 | BIT39 | BIT47 | BIT55 | BIT63;
+	final static long BORDER_U  = (0xFFL << 56);
+	final static long BORDER_D  = 0xFFL;
+
 	//---------------Shifters-----------------------
 	/*   NW     N      NO     SW     S      SO
 	 *   << 7  << 8   << 9   >>> 9  >>> 8  >>> 7
@@ -342,7 +324,7 @@ public class Bitfields {
 	final public static boolean isSet(int x, int y, long BITFIELD){
 		//             xyToBit
 		if(x>7||y>7||x<0||y<0) return false;
-		return (FIELD[x][y] & BITFIELD) > 0;
+		return (FIELD[x][y] & BITFIELD) != 0;
 	}
 	/**
 	 * Looks if the given bit is set.
@@ -353,21 +335,13 @@ public class Bitfields {
 	 * @return true if set, else false
 	 */
 	final public static boolean isSet(long BIT, long BITFIELD){
-		return (BIT & BITFIELD)>0;
+		return (BIT & BITFIELD) != 0;
 	}
 	
-	final public static int numberOfSet(long BITFIELD){
-		int nbr = 0;
-		for(int i=0;i<64;i++){
-			if((BITFIELD & 1L) == 1L) nbr++;
-			
-			BITFIELD >>>= 1;
-		}
-		return nbr;
+	final public static int bitCount(long BITFIELD){
+		return Long.bitCount(BITFIELD);
 	}
-	
 
-	//---Print functions--------------------------------------
 	/*
 	 *    A  B  C  D  E  F  G  H
 	 * 1| 56 57 58 59 60 61 62 63
@@ -380,24 +354,7 @@ public class Bitfields {
 	 * 8| 00 01 02 03 04 05 06 07
 	 * 
 	 */
-	/**
-	 * Prints a (long) as 8x8 Bitfield
-	 * @param BITFIELD a (long) to print as 8x8 BITFIELD
-	 */
-	final public static void printBitfield(long BITFIELD){
-		System.out.println("-BITFIELD --------------------");
-		int start = 56,end = 64;
-		//first row
-		while(start>=0){
-			for(int i=start;i<end;i++){
-				if((BITFIELD & BIT[i])>0) System.out.print(" X");
-				else System.out.print(" O");
-			}
-			System.out.print('\n');
-			start -=8; end -=8;
-		}
-		System.out.println("------------------------------");
-	}
+
 	/**
 	 * Gives back a String representation of a 8x8 Bitfield
 	 * @param BITFIELD Bitfield to represent
@@ -405,18 +362,17 @@ public class Bitfields {
 	 */
 	final public static String toString(long BITFIELD){
 		StringBuffer str = new StringBuffer();
-		str.append("-BITFIELD --------------------\n");
+		str.append("-BITFIELD -------\n");
 		int start = 56,end = 64;
 		//first row
 		while(start>=0){
 			for(int i=start;i<end;i++){
-				if((BITFIELD & BIT[i])>0) str.append(" X");
-				else str.append(" O");
+				str.append(isSet(BIT[i],BITFIELD) ? " X" : " O");
 			}
 			str.append('\n');
 			start -=8; end -=8;
 		}
-		str.append("------------------------------\n");
+		str.append("-----------------\n");
 		return str.toString();
 	}
 }
